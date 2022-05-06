@@ -14,10 +14,10 @@ const InternSchema = new mongoose.Schema(
     },
 
     mobile: {
-      type: Number,
+      type: String,
       unique: true,
       required: true,
-      max: 10,
+
     },
     collegeId: {
       type: ObjectId,

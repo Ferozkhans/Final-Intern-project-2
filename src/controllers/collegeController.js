@@ -1,13 +1,14 @@
 
 const collegeModel = require('../models/collegeModel');
-const jwt = require("jsonwebtoken");
+//const jwt = require("jsonwebtoken");
 
 const createColleges = async (req, res) => {
   try {
 
     let names = /^[a-zA-Z ]{2,30}$/.test(req.body.name)
-    let fullName = req.body.fullName
-    let logoLink = req.body.logoLink
+    let fullName =req.body.fullName
+    //let logoLink =.test(req.body.logoLink)
+    let logoLink = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*\.(?:png|jpg|jpeg))*$/.test(req.body.logoLink)
     
     let data = await collegeModel.findOne({name: req.body.name})
 
@@ -15,14 +16,14 @@ const createColleges = async (req, res) => {
       return res.status(400).send({status: false, message: "invalid request ! please provide details"})
     }else if(!req.body.name){
       res.status(400).send({status: false, message: "Name is missing"})
-      console.log(req.body.name)
+      //console.log(renames)
     }else if(!req.body.fullName){
       res.status(400).send({status: false, message: "fullName is missing"})
     }else if(!req.body.logoLink){
       res.status(400).send({status: false, message: "LogoLink is missing"})
     }else if(names == false){
       res.status(400).send({status: false, message: "please inter valid name"})
-    }else if(fullName == 0){
+     }else if(fullName == 0){
       res.status(400).send({status: false, message: "please inter valid fullName"})
     }else if(logoLink == false){
       res.status(400).send({status: false, message: "please inter valid link"})
