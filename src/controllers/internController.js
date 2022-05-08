@@ -15,47 +15,47 @@ const createInterns = async (req, res) => {
     let mobileNo = await internModel.findOne({ mobile : req.body.mobile});
 
     if (arr.length == 0){
-    return res.status(400).send({ status: false, msg: "Invalid request. Please provide Details" })
+      return res.status(400).send({ status: false, message: "Invalid request. Please provide Details" })
     } else if(!data.name){
-      return res.status(400).send({ status: false, massage: "Fill the name block" });
+      return res.status(400).send({ status: false, massage: "Name is reqired" });
     }
     else if(!data.email){
     return res.status(400).send({ status: false, massage: "Email is required" });
    }
     else if(!data.mobile){
-    return res.status(400).send({status:false, massage:"Enter 10digit moblie number"})
+    return res.status(400).send({status:false, massage:"moblie number is required"})
+   }
+
+   else if(!data.collegeName){
+    return res.status(400).send({status:false, massage:"college Name is required"})
    }
     
     else if (Name == false)  {
-      return res.status(400).send({status:false , msg: "Please Enter valid name." })
+      return res.status(400).send({status:false , message: "Please Enter valid name." })
     }
     
     else if (Email == false){
-       return res.status(400).send({status:false , msg: "Please Enter valid email." })
+       return res.status(400).send({status:false , message: "Please Enter valid email." })
     }
     else if(intern) {
-       return res.status(400).send({status: false, msg: "email already exist!"})
+       return res.status(400).send({status: false, message: "email already exist!"})
     }
     
     else if (Mobile == false){
-     return res.status(400).send({status:false , msg: "Please Enter valid mobile number." })
+     return res.status(400).send({status:false , message: "Please Enter valid mobile number." })
     }
     else if(mobileNo) {
-       return res.status(400).send({status: false, msg: "mobile number already exist!"})
+       return res.status(400).send({status: false, message: "mobile number already exist!"})
     }
   
-    else if (mongoose.Types.ObjectId.isValid(data.collegeId) == false){
-       return res.status(400).send({ staus: false, msg: "College Id is Invalid" })
-    }
+    let getCllgData = await collegeModel.findOne({ name: data.collegeName}).select({ _id: 1 });
+    if (!getCllgData) return res.status(404).send({ status: false, message: "Enter a valid college name" });
+    data.collegeId = getCllgData._id;
 
-    let Id = await collegeModel.findOne({ _id: data.collegeId ,isDeleted:false});
+    let showInterData = await internModel.create(data);
+    res.status(201).send({ status: true, message: "Account created successfully", massage: showInterData });
 
-    if(!Id){res.status(404).send({ status: false, Error: "College does not exist!" });}
-    else{
-        let internCreated = await internModel.create(data);
-        res.status(201).send({ status: true, data: internCreated});
-    }
-  }   catch (err) {
+  } catch (err) {
   res.status(500).send({  status: false , msg: "Server not responding", error: err.message });
 }
 };
@@ -66,82 +66,71 @@ const createInterns = async (req, res) => {
 
 
 
+
+
+
+
 const getcollegeDetails = async (req, res) => {
+try{
+    const info = req.query.collegeName
+   
+    if(!info){
+      return res.status(200).send({status: false, massage: "college name is requred from query params"})
+    }   
+
+    if(Object.keys(info).length === 0) return res.status(400).send({status:false , message:"Please Enter College Name"})
+    const college = await collegeModel.findOne({name: info ,isDeleted:false})
+    if(!college) return res.status(400).send({status:false , message:"Did not found college with this name please register first"})
+      const { name, fullName, logoLink } = college
+      const data = { name, fullName, logoLink };
+      data["interests"] = [];
+      const collegeIdFromcollege = college._id;
+
+      const internList = await internModel.find({ collegeId: collegeIdFromcollege  ,isDeleted:false});
+      if (!internList) return res.status(404).send({ status: false, message: " We Did not Have Any Intern With This College" });
+      data["interests"] = [...internList]
+      res.status(200).send({ status: true, data: data });
+}
+catch(error){
+  console.log({message:error.message})
+  res.status(500).send({status:false , message:error.Message})
+}
+}
 
 
+
+ //let getAllCollegeDetails = await internModel.find()
  // const collegeDetails =async function(req ,res){
-    try{
-
-        const info = req.query.collegeName
-
-        if (!info){
-          let allintern = await internModel.find({isDeleted: false });
-          return res.status(200).send({ status: true, Data: allintern });
-        }
-
-        if(Object.keys(info).length === 0) return res.status(400).send({status:false , message:"Please Enter College Name"})
-        const college = await collegeModel.findOne({name: info ,isDeleted:false})
-        if(!college) return res.status(400).send({status:false , message:"Did not found college with this name please register first"})
-          const { name, fullName, logoLink } = college
-          const data = { name, fullName, logoLink };
-          data["interests"] = [];
-          const collegeIdFromcollege = college._id;
-  
-          const internList = await internModel.find({ collegeId: collegeIdFromcollege  ,isDeleted:false});
-          if (!internList) return res.status(404).send({ status: false, message: " We Did not Have Any Intern With This College" });
-          data["interests"] = [...internList]
-          res.status(200).send({ status: true, data: data });
-    }
-    catch(error){
-      console.log({message:error.message})
-      res.status(500).send({status:false , message:error.Message})
-    }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   try {
-//     let collegeName = req.query.collegeName
-
-//     if (!collegeName) 
-//       return res.status(404).send({ status: false, msg: "plese fill  college name" });
-    
-//     const college ={names ,fullName, logoLink}
-//     const data={names , fullName,logoLink}
-//     data["intersest"] = [];
-// const StoreData = college.id
-//   //   let showcollegelist = await collegeModel.findOne({name: collegeName}).select({name: 1, fullName: 1, logoLink: 1})
-//   //   if(!showcollegelist){
-//   //     return res.status(400).send({status: false, massage: "College not found please check name"})
-//   //   }
-    
-//   //   let StoreData = showcollegelist;
-//   //   //StoreData["instrest"]=[];
-//      let getInterns = await internModel.find({ collegeId:StoreData })//.select({ name: 1, email: 1, mobile: 1 });
-//     data["intersest"]=[...getInterns]
-
-//   //       let gy = (StoreData["showcollegelist"] = [...getInterns])
-//   //  //StoreData["instrest"]= [...getInterns]
-//      res.status(200).send({data: data})
-      
-//   } catch (err) {
-//       res.status(500).send({ status: false, msg:"showcollegelist"  })
-//   }
  
+
+
+  //       const info = req.query.collegeName
+
+       
+  //       if(Object.keys(info).length === 0) return res.status(400).send({status:false , message:"Please Enter College Name"})
+  //       const college = await collegeModel.findOne({name: info ,isDeleted:false})
+  //       if(!college) return res.status(400).send({status:false , message:"Did not found college with this name please register first"})
+  //         const { name, fullName, logoLink } = college
+  //         const data = { name, fullName, logoLink };
+  //         data["interests"] = [];
+  //         const collegeIdFromcollege = college._id;
+  
+  //         const internList = await internModel.find({ collegeId: collegeIdFromcollege  ,isDeleted:false});
+  //         if (!internList) return res.status(404).send({ status: false, message: " We Did not Have Any Intern With This College" });
+  //         data["interests"] = [...internList]
+  //         res.status(200).send({ status: true, data: data });
+  //   }
+  //   catch(error){
+  //     console.log({message:error.message})
+  //     res.status(500).send({status:false , message:error.Message})
+  //   }
+  // }
+
+
+
+
+
+
 
 module.exports = {
   createInterns, getcollegeDetails

@@ -1,13 +1,11 @@
 
 const collegeModel = require('../models/collegeModel');
-//const jwt = require("jsonwebtoken");
 
 const createColleges = async (req, res) => {
   try {
 
     let names = /^[a-zA-Z ]{2,30}$/.test(req.body.name)
     let fullName =req.body.fullName
-    //let logoLink =.test(req.body.logoLink)
     let logoLink = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*\.(?:png|jpg|jpeg))*$/.test(req.body.logoLink)
     
     let data = await collegeModel.findOne({name: req.body.name})
@@ -42,37 +40,6 @@ const createColleges = async (req, res) => {
 module.exports = {
   createColleges
 }
-
-// const loginAuthor = async function (req, res) {
-//   try {
-//     let email = req.body.email;
-//     let password = req.body.password;
-//     if(!email && !password){
-//       res.status(400).send({msg:"email and password must be present in body"})
-//     }
-//     let getData = req.body;
-//     if (Object.keys(getData).length == 0) return res.status(400).send({ status: false, msg: "Data is required to add a Author" });
-//     let author = await Author.findOne({ email: email, password: password });
-//     if (!author)
-//       return res.status(404).send({
-//         status: false,
-//         msg: "email or the password is not corerct",
-//       });
-//     let token = jwt.sign(
-//       {
-//         authorid: author._id.toString(),
-//         organisation: "FunctionUp",
-//       },
-//       "functionup-uranium"
-//     );
-//     res.setHeader("x-api-key", token);
-//     console.log(token);
-//     res.status(201).send({ status: true, data: token });
-//   }
-//   catch (err) {
-//     res.status(500).send({ msg: "Error", error: err.message })
-//   }
-// };
 
 
 
